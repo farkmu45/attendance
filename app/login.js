@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  TouchableOpacity, 
   StyleSheet,
 } from "react-native";
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const storeData = async (value) => {
     try {
       await AsyncStorage.setItem("@userToken", value);
@@ -23,12 +24,12 @@ const LoginPage = () => {
     }
   };
 
-  const handleLogin = () => { 
+  const handleLogin = () => {
     axios
       .post(endpoint.loginUser, {
         username: username,
         password: password,
-      }) 
+      })
       .then((response) => {
         console.log("Login successful");
         console.log(response.data.data.token);
@@ -42,28 +43,29 @@ const LoginPage = () => {
 
   return (
     <View style={styles.container}>
-      <FontAwesome5Icon
-        name="user-circle"
-        size={80}
-        color="#3498db"
-        style={styles.icon}
-      />
-      <Text style={styles.title}>Welcome to attendance</Text>
+      <FontAwesome5Icon name="user-circle" size={80} color="#3498db" style={styles.icon} />
+      <Text style={styles.title}>Welcome to Attendance</Text>
 
       <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          value={username}
-          onChangeText={(text) => setUsername(text)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-        />
+        <View style={styles.inputWrapper}>
+          <FontAwesome5Icon name="user" size={20} color="#3498db" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChangeText={(text) => setUsername(text)}
+          />
+        </View>
+        <View style={styles.inputWrapper}>
+          <FontAwesome5Icon name="lock" size={20} color="#3498db" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+          />
+        </View>
       </View>
 
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
@@ -79,6 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
+    backgroundColor: "#fff",
   },
   icon: {
     marginBottom: 20,
@@ -86,18 +89,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 20,
+    fontWeight: "bold",
+    color: "#333",
   },
   inputContainer: {
     width: "100%",
     marginBottom: 20,
   },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
-    paddingLeft: 10,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    borderColor: "#3498db",
+    borderWidth: 1,
     borderRadius: 8,
+    paddingLeft: 10,
   },
   loginButton: {
     backgroundColor: "#3498db",
@@ -106,7 +119,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   buttonText: {
-    color: "white",
+    color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
   },
