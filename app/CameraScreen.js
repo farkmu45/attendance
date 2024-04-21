@@ -1,24 +1,29 @@
-import React, { useRef, useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  Alert,
-  TouchableOpacity,
-  Text,
-  ActivityIndicator,
-} from "react-native";
-import { Camera, CameraType } from "expo-camera";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as LocalAuthentication from "expo-local-authentication";
-import { endpoint } from "./api/endpoint";
-import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { Camera, CameraType } from "expo-camera";
+import * as LocalAuthentication from "expo-local-authentication";
+import { Link, router } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from "react-native";
+import { endpoint } from "./api/endpoint";
 
 const CameraScreen = () => {
   const cameraRef = useRef(null);
   const [authToken, setAuthToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [permission, requestPermission] = Camera.useCameraPermissions();
+
+  if (!permission) {
+    requestPermission()
+  }
 
   useEffect(() => {
     const getTokenFromAsyncStorage = async () => {
@@ -167,7 +172,7 @@ const CameraScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Camera ref={cameraRef} style={styles.camera} type={CameraType.front} />
+      <Camera ratio={"16:9"} ref={cameraRef} style={styles.camera} type={CameraType.front} />
       <TouchableOpacity style={styles.button} onPress={takePhoto}>
         <Ionicons name="camera" size={36} color="white" />
       </TouchableOpacity>
