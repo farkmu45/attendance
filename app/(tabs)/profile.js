@@ -1,32 +1,57 @@
 import React from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Image } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { endpoint } from "../api/endpoint";
 import axios from "axios";
+import { router } from "expo-router";
 
 const ProfilePage = () => {
   const handleLogout = async () => {
-    const token = await AsyncStorage.getItem("@userToken");
-    try {
-      const response = await axios.get(endpoint.logoutUser, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "No",
+          style: "cancel",
         },
-      });
-
-      if (response.status === 200) {
-        console.log("Logout successful");
-        await AsyncStorage.removeItem("@userToken");
-        console.log("Token removed from AsyncStorage");
-      } else {
-        console.error("Logout failed:", response);
-      }
-    } catch (error) {
-      console.error("Error during logout:", error);
-    }
+        {
+          text: "Yes",
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem("@userToken");
+              console.log("Token:", token);
+          
+              const response = await axios.get(endpoint.logoutUser, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              });
+          
+              console.log("Logout response:", response);
+          
+              if (response.status === 200) {
+                console.log("Logout successful");
+                router.push('/login')
+              } else {
+                console.error("Logout failed:", response);
+              }
+            } catch (error) {
+              console.error("Error during logout:", error);
+            } finally {
+          
+              await AsyncStorage.removeItem("@userToken");
+              console.log("Token removed from AsyncStorage");
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
+  
 
   return (
     <View style={styles.container}>

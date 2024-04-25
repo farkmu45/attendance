@@ -5,69 +5,75 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Pressable,
+  RefreshControl,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import axios from "axios";
-import { endpoint } from "../api/endpoint"; 
-import AsyncStorage from "@react-native-async-storage/async-storage"; 
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { endpoint } from "../api/endpoint";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 
 const HistoryScreen = () => {
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isLoadingData, setisLoadingData] = useState(false);
   const [authToken, setAuthToken] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => { 
+  useEffect(() => {
     const getTokenFromAsyncStorage = async () => {
       try {
         const token = await AsyncStorage.getItem("@userToken");
         if (token !== null) {
-          // console.log("Token retrieved:", token);
+          console.log("Token retrieved:", token);
           setAuthToken(token);
         } else {
           console.log("Token not found in AsyncStorage");
         }
       } catch (error) {
         console.error("Error retrieving token from AsyncStorage:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     getTokenFromAsyncStorage();
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(endpoint.Attend, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-        // console.log(response.data.data);
-        setAttendanceHistory(response.data.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(endpoint.Attend, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      setAttendanceHistory(response.data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setRefreshing(false); 
+    }
+  };
 
+  useEffect(() => {
+    if (authToken) {
+      fetchData();
+    }
+  }, [authToken]);
+
+  const onRefresh = () => {
+    setRefreshing(true); 
     fetchData();
-  }, []);
+  };
 
   const renderItem = ({ item }) => {
     const attended = item.type === "IN" && item.is_deviate === 0;
     const typeText = item.type === "IN" ? "In" : "Out";
 
     return (
-      <Link
-        href={{
-          pathname: "/history/[id]",
-          params: {
-            id: item.id, 
-          },
-        }}
+      <Pressable
         style={[
           styles.card,
           { backgroundColor: attended ? "#d4edda" : "#f8d7da" },
@@ -99,12 +105,20 @@ const HistoryScreen = () => {
             class
           </Text>
         </View>
-      </Link>
+        <TouchableOpacity style={styles.button} activeOpacity={0.8}>
+          <Link
+            href={{
+              pathname: "/history/[id]",
+              params: {
+                id: item.id,
+              },
+            }}
+          >
+            <MaterialIcons name="arrow-forward" size={30} color="white" />
+          </Link>
+        </TouchableOpacity>
+      </Pressable>
     );
-  };
-
-  const handlePress = (id) => {
-    // Handle navigation or any other action when a card is pressed
   };
 
   return (
@@ -116,6 +130,14 @@ const HistoryScreen = () => {
           data={attendanceHistory}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#007bff"]} 
+              tintColor="#007bff" 
+            />
+          }
         />
       )}
     </View>
@@ -172,6 +194,13 @@ const styles = StyleSheet.create({
   },
   desc: {
     fontSize: 16,
+  },
+  button: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#007bff",
+    borderRadius: 8,
+    padding: 10,
   },
 });
 

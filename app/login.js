@@ -8,13 +8,15 @@ import {
 } from "react-native";
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 import axios from "axios";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { endpoint } from "./api/endpoint";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setLoading] = useState(false);
+  const [invalidCredentials, setInvalidCredentials] = useState(false);
 
   const storeData = async (value) => {
     try {
@@ -23,8 +25,10 @@ const LoginPage = () => {
       console.error(e);
     }
   };
-
+  
   const handleLogin = () => {
+    setLoading(true);
+  
     axios
       .post(endpoint.loginUser, {
         username: username,
@@ -33,11 +37,20 @@ const LoginPage = () => {
       .then((response) => {
         console.log("Login successful");
         console.log(response.data.data.token);
-        storeData(response.data.data.token);
-        router.replace("/(tabs)");
+        storeData(response.data.data.token)
+          .then(() => {
+            setLoading(false);
+            router.replace("/(tabs)");
+          })
+          .catch((error) => {
+            console.error("Error storing data:", error);
+            setLoading(false);
+          });
       })
       .catch((error) => {
         console.error("Error logging in:", error);
+        setLoading(false);
+        setInvalidCredentials(true); // Set invalid credentials flag
       });
   };
 
@@ -67,6 +80,10 @@ const LoginPage = () => {
           />
         </View>
       </View>
+
+      {invalidCredentials && (
+        <Text style={styles.warningText}>Invalid username or password please verify your data and make sure the input are filled</Text>
+      )}
 
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
@@ -122,6 +139,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  warningText: {
+    color: "red",
+    marginBottom: 10,
   },
 });
 
