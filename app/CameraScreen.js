@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { endpoint } from "./api/endpoint";
 
+
 const CameraScreen = () => {
   const cameraRef = useRef(null);
   const [authToken, setAuthToken] = useState(null);
@@ -82,17 +83,31 @@ const CameraScreen = () => {
   
       if (response.status === 201) {
         console.log(response.data);
+        Toast.show({
+          type: 'success',
+          text1: 'Verification Successful',
+          text2: 'Photo verified successfully.',
+        });
         return true; 
       } else {
         console.log("Unexpected response status:", response.status);
+        Toast.show({
+          type: 'error',
+          text1: 'Verification Failed',
+          text2: 'Unexpected response status. Please try again.',
+        });
         return false; 
       }
     } catch (error) {
       console.error("Error verifying photo:", error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error Verifying Photo',
+        text2: 'An error occurred while verifying the photo. Please try again.',
+      });
       return false; 
     }
   };
-  
 
   const showFingerprintAlert = async () => {
     return new Promise(async (resolve, reject) => {
@@ -121,34 +136,6 @@ const CameraScreen = () => {
     });
   };
 
-  const promptFingerprintAuthentication = async () => {
-    try {
-      const isAuthenticated = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Please verify your identity with fingerprint",
-      });
-
-      if (!isAuthenticated.success) {
-        Alert.alert("Authentication failed");
-      }
-
-      const response = await axios.post(endpoint.AttendFace, null, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      if (response.status === 201) {
-        navigation.navigate("/tabs");
-      }
-    } catch (error) {
-      console.error("Error with fingerprint authentication:", error);
-      Alert.alert(
-        "Information",
-        "Fingerprint authentication failed. Please try again."
-      );
-    }
-  };
-
   const showRetryAlert = async () => {
     return new Promise((resolve, reject) => {
       Alert.alert(
@@ -169,6 +156,44 @@ const CameraScreen = () => {
       );
     });
   };
+  
+  const promptFingerprintAuthentication = async () => {
+    try {
+      let retry = true;
+      while (retry) {
+        const isAuthenticated = await LocalAuthentication.authenticateAsync({
+          promptMessage: "Please verify your identity with fingerprint",
+        });
+  
+        if (!isAuthenticated.success) {
+          Alert.alert("Authentication failed");
+        } else {
+          const response = await axios.post(endpoint.AttendFace, null, {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+  
+          if (response.status === 201) {
+            navigation.navigate("/tabs");
+            retry = false; 
+          }
+        }
+  
+        if (retry) {
+          const tryAgain = await showRetryAlert();
+          retry = tryAgain; 
+        }
+      }
+    } catch (error) {
+      console.error("Error with fingerprint authentication:", error);
+      Alert.alert(
+        "Information",
+        "Fingerprint authentication failed. Please try again."
+      );
+    }
+  };
+  
 
   return (
     <View style={styles.container}>

@@ -27,7 +27,6 @@ const HistoryScreen = () => {
       try {
         const token = await AsyncStorage.getItem("@userToken");
         if (token !== null) {
-          console.log("Token retrieved:", token);
           setAuthToken(token);
         } else {
           console.log("Token not found in AsyncStorage");
@@ -69,40 +68,54 @@ const HistoryScreen = () => {
   };
 
   const renderItem = ({ item }) => {
-    const attended = item.type === "IN" && item.is_deviate === 0;
-    const typeText = item.type === "IN" ? "In" : "Out";
-
+    const attendedIn = item.type === "IN" && item.is_deviate === 0;
+    const attendedOut = item.type === "OUT" && item.is_deviate === 0;
+    const deviate = item.is_deviate;
+  
+    let icon;
+    if (attendedIn) {
+      icon = (
+        <MaterialCommunityIcons
+          name="check-circle"
+          size={24}
+          color="#28a745"
+          style={styles.icon}
+        />
+      );
+    } else if (attendedOut) {
+      icon = (
+        <MaterialCommunityIcons
+          name="exit-to-app"
+          size={24}
+          color="#dc3545"
+          style={styles.icon}
+        />
+      );
+    } else {
+      icon = (
+        <MaterialCommunityIcons
+          name="alert-circle"
+          size={24}
+          color="#FFA000"
+          style={styles.icon}
+        />
+      );
+    }
+  
     return (
       <Pressable
         style={[
           styles.card,
-          { backgroundColor: attended ? "#d4edda" : "#f8d7da" },
+          attendedIn ? styles.attendedIn : attendedOut ? styles.attendedOut : styles.deviate,
         ]}
       >
-        <View style={styles.iconContainer}>
-          {attended ? (
-            <MaterialCommunityIcons
-              name="check-circle"
-              size={24}
-              color="#28a745"
-              style={styles.icon}
-            />
-          ) : (
-            <MaterialCommunityIcons
-              name="cancel"
-              size={24}
-              color="#dc3545"
-              style={styles.icon}
-            />
-          )}
-        </View>
+        <View style={styles.iconContainer}>{icon}</View>
         <View style={styles.textContainer}>
           <Text style={styles.date}>Date: {item.time.substring(0, 10)}</Text>
           <Text style={styles.time}>Time: {item.time.substring(11, 16)}</Text>
-          <Text style={styles.type}>Type: {typeText}</Text>
+          <Text style={styles.type}>Type: {item.type === "IN" ? "In" : "Out"}</Text>
           <Text style={styles.desc}>
-            {attended ? "Attended" : "Missed"} the {typeText.toUpperCase()}{" "}
-            class
+            {attendedIn ? "Attended" : attendedOut ? "Missed" : "Deviated"} the {item.type.toUpperCase()} class
           </Text>
         </View>
         <TouchableOpacity style={styles.button} activeOpacity={0.8}>
@@ -120,6 +133,8 @@ const HistoryScreen = () => {
       </Pressable>
     );
   };
+  
+  
 
   return (
     <View style={styles.container}>
@@ -166,7 +181,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     elevation: 3,
     height: 120,
+    backgroundColor: '#d4edda',
   },
+  
   iconContainer: {
     justifyContent: "center",
     alignItems: "center",

@@ -50,7 +50,7 @@ const LoginPage = () => {
       .catch((error) => {
         console.error("Error logging in:", error);
         setLoading(false);
-        setInvalidCredentials(true); // Set invalid credentials flag
+        setInvalidCredentials(true); 
       });
   };
 
