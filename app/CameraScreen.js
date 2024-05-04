@@ -13,6 +13,8 @@ import {
   View
 } from "react-native";
 import { endpoint } from "./api/endpoint";
+import Toast from 'react-native-root-toast';
+
 
 
 const CameraScreen = () => {
@@ -78,33 +80,32 @@ const CameraScreen = () => {
       const response = await axios.post(endpoint.Attend, formData, {
         headers: {
           Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'multipart/form-data', 
+
         },
       });
   
       if (response.status === 201) {
         console.log(response.data);
-        Toast.show({
-          type: 'success',
-          text1: 'Verification Successful',
-          text2: 'Photo verified successfully.',
-        });
+         Toast.show('Attendance Success.', {
+          duration: Toast.durations.SHORT,
+        }); 
+        
         return true; 
       } else {
         console.log("Unexpected response status:", response.status);
-        Toast.show({
-          type: 'error',
-          text1: 'Verification Failed',
-          text2: 'Unexpected response status. Please try again.',
+         Toast.show('Verification Failed.', {
+          duration: Toast.durations.LONG,
         });
+        
         return false; 
       }
     } catch (error) {
       console.error("Error verifying photo:", error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error Verifying Photo',
-        text2: 'An error occurred while verifying the photo. Please try again.',
+       Toast.show('Error Please Try Again Later, Make Sure If You Not Attended Before', {
+        duration: Toast.durations.LONG,
       });
+      
       return false; 
     }
   };
@@ -125,7 +126,6 @@ const CameraScreen = () => {
           {
             text: "No",
             onPress: async () => {
-              await takePhoto();
               resolve();
             },
             style: "cancel",

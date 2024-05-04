@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity, 
+  TouchableOpacity,
   StyleSheet,
 } from "react-native";
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
@@ -17,6 +17,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [invalidCredentials, setInvalidCredentials] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const storeData = async (value) => {
     try {
@@ -25,10 +26,10 @@ const LoginPage = () => {
       console.error(e);
     }
   };
-  
+
   const handleLogin = () => {
     setLoading(true);
-  
+
     axios
       .post(endpoint.loginUser, {
         username: username,
@@ -50,18 +51,28 @@ const LoginPage = () => {
       .catch((error) => {
         console.error("Error logging in:", error);
         setLoading(false);
-        setInvalidCredentials(true); 
+        setInvalidCredentials(true);
       });
   };
 
   return (
     <View style={styles.container}>
-      <FontAwesome5Icon name="user-circle" size={80} color="#3498db" style={styles.icon} />
+      <FontAwesome5Icon
+        name="user-circle"
+        size={80}
+        color="#3498db"
+        style={styles.icon}
+      />
       <Text style={styles.title}>Welcome to Attendance</Text>
 
       <View style={styles.inputContainer}>
         <View style={styles.inputWrapper}>
-          <FontAwesome5Icon name="user" size={20} color="#3498db" style={styles.inputIcon} />
+          <FontAwesome5Icon
+            name="user"
+            size={20}
+            color="#3498db"
+            style={styles.inputIcon}
+          />
           <TextInput
             style={styles.input}
             placeholder="Username"
@@ -70,19 +81,38 @@ const LoginPage = () => {
           />
         </View>
         <View style={styles.inputWrapper}>
-          <FontAwesome5Icon name="lock" size={20} color="#3498db" style={styles.inputIcon} />
+          <FontAwesome5Icon
+            name="lock"
+            size={20}
+            color="#3498db"
+            style={styles.inputIcon}
+          />
           <TextInput
             style={styles.input}
             placeholder="Password"
-            secureTextEntry
+            secureTextEntry={!showPassword}
             value={password}
             onChangeText={(text) => setPassword(text)}
           />
+          <TouchableOpacity
+            style={styles.eyeIconWrapper}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <FontAwesome5Icon
+              name={showPassword ? "eye-slash" : "eye"}
+              size={20}
+              color="#3498db"
+              style={styles.inputIcon}
+            />
+          </TouchableOpacity>
         </View>
       </View>
 
       {invalidCredentials && (
-        <Text style={styles.warningText}>Invalid username or password please verify your data and make sure the input are filled</Text>
+        <Text style={styles.warningText}>
+          Invalid username or password please verify your data and make sure the
+          input are filled
+        </Text>
       )}
 
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
@@ -143,6 +173,10 @@ const styles = StyleSheet.create({
   warningText: {
     color: "red",
     marginBottom: 10,
+  },
+  eyeIconWrapper: {
+    position: "absolute",
+    right: 10,
   },
 });
 
