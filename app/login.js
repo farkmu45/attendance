@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
   warningText: {
     color: "red",
     marginBottom: 10,
+    textAlign:'center'
   },
   eyeIconWrapper: {
     position: "absolute",

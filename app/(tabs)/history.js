@@ -29,7 +29,7 @@ const HistoryScreen = () => {
         if (token !== null) {
           setAuthToken(token);
         } else {
-          console.log("Token not found in AsyncStorage");
+          console.log("Token not found in AsyncStorage"); 
         }
       } catch (error) {
         console.error("Error retrieving token from AsyncStorage:", error);

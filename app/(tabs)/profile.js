@@ -1,5 +1,5 @@
-import React from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Image, Alert } from "react-native";
+import React, { useState,useEffect } from "react";
+import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, ActivityIndicator } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { endpoint } from "../api/endpoint";
@@ -7,7 +7,20 @@ import axios from "axios";
 import { router } from "expo-router";
 
 const ProfilePage = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  const removeValue = async () => {
+    try {
+      await AsyncStorage.removeItem('@userToken')
+      console.log("Token removed from AsyncStorage");
+    } catch(e) {
+      console.log("Error removing token:", e);
+    }
+  }
+
   const handleLogout = async () => {
+  
     Alert.alert(
       "Logout",
       "Are you sure you want to logout?",
@@ -20,6 +33,8 @@ const ProfilePage = () => {
           text: "Yes",
           onPress: async () => {
             try {
+              setIsLoading(true);
+
               const token = await AsyncStorage.getItem("@userToken");
               console.log("Token:", token);
           
@@ -34,16 +49,16 @@ const ProfilePage = () => {
           
               if (response.status === 200) {
                 console.log("Logout successful");
-                router.push('/login')
+                await removeValue();
+                router.push('/login');
+                
               } else {
                 console.error("Logout failed:", response);
               }
             } catch (error) {
               console.error("Error during logout:", error);
             } finally {
-          
-              await AsyncStorage.removeItem("@userToken");
-              console.log("Token removed from AsyncStorage");
+              setIsLoading(false); 
             }
           },
         },
@@ -51,7 +66,6 @@ const ProfilePage = () => {
       { cancelable: false }
     );
   };
-  
 
   return (
     <View style={styles.container}>
@@ -70,6 +84,8 @@ const ProfilePage = () => {
         <FontAwesome5 name="sign-out-alt" size={20} color="#fff" />
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
+
+      {isLoading && <ActivityIndicator style={styles.loadingIndicator} size="large" color="#3498db" />}
     </View>
   );
 };
@@ -131,6 +147,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  loadingIndicator: {
+    position: 'absolute',
+    top: '50%',
   },
 });
 

@@ -28,7 +28,9 @@ const CameraScreen = () => {
     requestPermission()
   }
 
-  useEffect(() => {
+  useEffect( () => {
+    // const ratios = await cameraRef.current.getSupportedRatiosAsync();
+    // console.log('Supported ratios:', ratios);
     const getTokenFromAsyncStorage = async () => {
       try {
         const token = await AsyncStorage.getItem("@userToken");
@@ -50,6 +52,7 @@ const CameraScreen = () => {
     try {
       if (!cameraRef.current) return;
       const photo = await cameraRef.current.takePictureAsync();
+   
       setIsLoading(true);
       const result = await verifyPhoto(photo.uri);
       setIsLoading(false);
@@ -159,6 +162,13 @@ const CameraScreen = () => {
   
   const promptFingerprintAuthentication = async () => {
     try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+  
+      // if (!hasHardware) {
+      //   Alert.alert("Error", "Fingerprint authentication is not supported on this device.");
+      //   return;
+      // }
+  
       let retry = true;
       while (retry) {
         const isAuthenticated = await LocalAuthentication.authenticateAsync({
@@ -168,41 +178,44 @@ const CameraScreen = () => {
         if (!isAuthenticated.success) {
           Alert.alert("Authentication failed");
         } else {
-          const response = await axios.post(endpoint.AttendFace, null, {
+          const response = await axios.post(endpoint.AttendFace, {}, {
             headers: {
-              Authorization: `Bearer ${authToken}`,
+              Authorization: `Bearer ${authToken}`
             },
           });
-  
           if (response.status === 201) {
-            navigation.navigate("/tabs");
+            Toast.show('Attendance using fingerprint success.', {
+              duration: Toast.durations.SHORT,
+            }); 
+            console.log('yey berhasil');
+            router.push("/(tabs)");
             retry = false; 
           }
         }
-  
         if (retry) {
           const tryAgain = await showRetryAlert();
           retry = tryAgain; 
         }
       }
     } catch (error) {
-      console.error("Error with fingerprint authentication:", error);
+      console.error("Error with fingerprint authentication:", error.request);
       Alert.alert(
         "Information",
-        "Fingerprint authentication failed. Please try again."
+        "Fingerprint authentication failed. Please try again. make sure you not attend before"
       );
     }
   };
   
+  
 
   return (
     <View style={styles.container}>
-      <Camera ratio={"16:9"} ref={cameraRef} style={styles.camera} type={CameraType.front} />
+      <Camera ratio={"19:9"} ref={cameraRef} style={styles.camera} type={CameraType.front} />
       <TouchableOpacity style={styles.button} onPress={takePhoto}>
         <Ionicons name="camera" size={36} color="white" />
       </TouchableOpacity>
       {isLoading && (
-        <View style={styles.loading}>
+        <View style={styles.loading}> 
           <ActivityIndicator size="large" color="blue" />
         </View>
       )}
@@ -225,7 +238,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 40,
     alignSelf: "center",
-    backgroundColor: "blue",
+    backgroundColor: "#3498db",
     padding: 20,
     borderRadius: 50,
   },
@@ -233,7 +246,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 50,
     left: 20,
-    backgroundColor: "blue",
+    backgroundColor: "#3498db",
     padding: 10,
     borderRadius: 5,
   },
