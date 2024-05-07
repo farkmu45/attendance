@@ -41,7 +41,7 @@ const CameraScreen = () => {
           console.log("Token not found in AsyncStorage");
         }
       } catch (error) {
-        console.error("Error retrieving token from AsyncStorage:", error);
+        console.log("Error retrieving token from AsyncStorage:", error);
       }
     };
 
@@ -67,7 +67,7 @@ const CameraScreen = () => {
         }
       }
     } catch (error) {
-      console.error("Error taking photo:", error);
+      console.log("Error taking photo:", error);
     }
   };
 
@@ -104,7 +104,7 @@ const CameraScreen = () => {
         return false; 
       }
     } catch (error) {
-      console.error("Error verifying photo:", error);
+      console.log("Error verifying photo:", error);
        Toast.show('Error Please Try Again Later, Make Sure If You Not Attended Before', {
         duration: Toast.durations.LONG,
       });
@@ -198,7 +198,7 @@ const CameraScreen = () => {
         }
       }
     } catch (error) {
-      console.error("Error with fingerprint authentication:", error.request);
+      console.log("Error with fingerprint authentication:", error.request);
       Alert.alert(
         "Information",
         "Fingerprint authentication failed. Please try again. make sure you not attend before"

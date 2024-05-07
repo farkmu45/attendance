@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState } from "react";
 import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, ActivityIndicator } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,18 +9,16 @@ import { router } from "expo-router";
 const ProfilePage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-
   const removeValue = async () => {
     try {
-      await AsyncStorage.removeItem('@userToken')
+      await AsyncStorage.removeItem('@userToken');
       console.log("Token removed from AsyncStorage");
     } catch(e) {
       console.log("Error removing token:", e);
     }
-  }
+  };
 
   const handleLogout = async () => {
-  
     Alert.alert(
       "Logout",
       "Are you sure you want to logout?",
@@ -34,7 +32,6 @@ const ProfilePage = () => {
           onPress: async () => {
             try {
               setIsLoading(true);
-
               const token = await AsyncStorage.getItem("@userToken");
               console.log("Token:", token);
           
@@ -51,7 +48,6 @@ const ProfilePage = () => {
                 console.log("Logout successful");
                 await removeValue();
                 router.push('/login');
-                
               } else {
                 console.error("Logout failed:", response);
               }
@@ -69,15 +65,16 @@ const ProfilePage = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.banner}></View>
 
-      <View style={styles.profileContainer}>
+      <View style={styles.card}>
         <Image
-          source={{ uri: "https://placekitten.com/200/200" }}
+          source={{ uri: "https://t4.ftcdn.net/jpg/02/29/75/83/360_F_229758328_7x8jwCwjtBMmC6rgFzLFhZoEpLobB6L8.jpg" }}
           style={styles.profilePic}
         />
-        <Text style={styles.username}>John Doe</Text>
-        <Text style={styles.email}>john.doe@example.com</Text>
+        <View style={styles.userInfo}>
+          <Text style={styles.username}>John Doe</Text>
+          <Text style={styles.email}>john.doe@example.com</Text>
+        </View>
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -94,37 +91,46 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
   },
   banner: {
     backgroundColor: "#3498db",
-    width: "100%",
     height: 200,
   },
-  profileContainer: {
-    alignItems: "center",
-    marginTop: -100,
-    marginBottom: 40,
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    margin: 20,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   profilePic: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderWidth: 3,
-    borderColor: "#000",
-    marginBottom: 16,
-    backgroundColor:'red'
+    alignSelf: "center",
+  },
+  userInfo: {
+    alignItems: "center",
   },
   username: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 8,
+    marginTop: 10,
+    marginBottom: 5,
+    textAlign: "center",
   },
   email: {
     fontSize: 16,
     color: "#666",
-    marginBottom: 24,
+    textAlign: "center",
   },
   logoutButton: {
     flexDirection: "row",
@@ -133,6 +139,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 30,
+    marginHorizontal: 20,
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: {
@@ -151,6 +158,7 @@ const styles = StyleSheet.create({
   loadingIndicator: {
     position: 'absolute',
     top: '50%',
+    alignSelf: 'center',
   },
 });
 

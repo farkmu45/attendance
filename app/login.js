@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 import axios from "axios";
 import { router } from "expo-router";
@@ -23,7 +17,7 @@ const LoginPage = () => {
     try {
       await AsyncStorage.setItem("@userToken", value);
     } catch (e) {
-      console.error(e);
+      console.log(e);
     }
   };
 
@@ -44,91 +38,109 @@ const LoginPage = () => {
             router.replace("/(tabs)");
           })
           .catch((error) => {
-            console.error("Error storing data:", error);
+            console.log("Error storing data:", error);
             setLoading(false);
           });
       })
       .catch((error) => {
-        console.error("Error logging in:", error);
+        console.log("Error logging in:", error);
         setLoading(false);
         setInvalidCredentials(true);
       });
   };
 
   return (
-    <View style={styles.container}>
-      <FontAwesome5Icon
-        name="user-circle"
-        size={80}
-        color="#3498db"
-        style={styles.icon}
-      />
-      <Text style={styles.title}>Welcome to Attendance</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Attendance App</Text>
+      </View>
+      <View style={styles.contentContainer}>
+        <FontAwesome5Icon
+          name="user-circle"
+          size={80}
+          color="#3498db"
+          style={styles.icon}
+        />
+        <Text style={styles.title}>Welcome to Attendance</Text>
 
-      <View style={styles.inputContainer}>
-        <View style={styles.inputWrapper}>
-          <FontAwesome5Icon
-            name="user"
-            size={20}
-            color="#3498db"
-            style={styles.inputIcon}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Username"
-            value={username}
-            onChangeText={(text) => setUsername(text)}
-          />
-        </View>
-        <View style={styles.inputWrapper}>
-          <FontAwesome5Icon
-            name="lock"
-            size={20}
-            color="#3498db"
-            style={styles.inputIcon}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-          />
-          <TouchableOpacity
-            style={styles.eyeIconWrapper}
-            onPress={() => setShowPassword(!showPassword)}
-          >
+        <View style={styles.inputContainer}>
+          <View style={styles.inputWrapper}>
             <FontAwesome5Icon
-              name={showPassword ? "eye-slash" : "eye"}
+              name="user"
               size={20}
               color="#3498db"
               style={styles.inputIcon}
             />
-          </TouchableOpacity>
+            <TextInput
+              style={styles.input}
+              placeholder="Username"
+              value={username}
+              onChangeText={(text) => setUsername(text)}
+            />
+          </View>
+          <View style={styles.inputWrapper}>
+            <FontAwesome5Icon
+              name="lock"
+              size={20}
+              color="#3498db"
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+            />
+            <TouchableOpacity
+              style={styles.eyeIconWrapper}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <FontAwesome5Icon
+                name={showPassword ? "eye-slash" : "eye"}
+                size={20}
+                color="#3498db"
+                style={styles.inputIcon}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
+
+        {invalidCredentials && (
+          <Text style={styles.warningText}>
+            Invalid username or password please verify your data and make sure the
+            input are filled
+          </Text>
+        )}
+
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
       </View>
-
-      {invalidCredentials && (
-        <Text style={styles.warningText}>
-          Invalid username or password please verify your data and make sure the
-          input are filled
-        </Text>
-      )}
-
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    backgroundColor: "#3498db",
+    paddingVertical: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  contentContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#fff",
   },
   icon: {
     marginBottom: 20,
@@ -171,10 +183,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   warningText: {
-    color: "red",
+    backgroundColor: "#f8d7da",
+    color: "#721c24",
+    padding: 10,
     marginBottom: 10,
-    textAlign:'center'
-  },
+    borderRadius: 5,
+    textAlign: "center",
+    fontWeight:'bold'
+},
+
   eyeIconWrapper: {
     position: "absolute",
     right: 10,
