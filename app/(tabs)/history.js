@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Pressable,
   RefreshControl,
+  Image,
+  ActivityIndicator,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import axios from "axios";
@@ -29,7 +31,7 @@ const HistoryScreen = () => {
         if (token !== null) {
           setAuthToken(token);
         } else {
-          console.log("Token not found in AsyncStorage"); 
+          console.log("Token not found in AsyncStorage");
         }
       } catch (error) {
         console.error("Error retrieving token from AsyncStorage:", error);
@@ -52,7 +54,7 @@ const HistoryScreen = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      setRefreshing(false); 
+      setRefreshing(false);
     }
   };
 
@@ -63,7 +65,7 @@ const HistoryScreen = () => {
   }, [authToken]);
 
   const onRefresh = () => {
-    setRefreshing(true); 
+    setRefreshing(true);
     fetchData();
   };
 
@@ -75,29 +77,23 @@ const HistoryScreen = () => {
     let icon;
     if (attendedIn) {
       icon = (
-        <MaterialCommunityIcons
-          name="check-circle"
-          size={24}
-          color="#28a745"
-          style={styles.icon}
+        <Image
+          source={require(".././../assets/attend.png")}
+          style={[styles.icon, { tintColor: "#28a745" }]}
         />
       );
     } else if (attendedOut) {
       icon = (
-        <MaterialCommunityIcons
-          name="exit-to-app"
-          size={24}
-          color="#dc3545"
-          style={styles.icon}
+        <Image
+          source={require(".././../assets/exit.png")}
+          style={[styles.icon, { tintColor: "#dc3545" }]}
         />
       );
     } else {
       icon = (
-        <MaterialCommunityIcons
-          name="alert-circle"
-          size={24}
-          color="#FFA000"
-          style={styles.icon}
+        <Image
+          source={require(".././../assets/office.png")}
+          style={[styles.icon, { tintColor: "#FFA000" }]}
         />
       );
     }
@@ -106,40 +102,45 @@ const HistoryScreen = () => {
       <Pressable
         style={[
           styles.card,
-          attendedIn ? styles.attendedIn : attendedOut ? styles.attendedOut : styles.deviate,
+          attendedIn
+            ? styles.attendedIn
+            : attendedOut
+            ? styles.attendedOut
+            : styles.deviate,
         ]}
       >
-        <View style={styles.iconContainer}>{icon}</View>
-        <View style={styles.textContainer}>
-          <Text style={styles.date}>Date: {item.time.substring(0, 10)}</Text>
-          <Text style={styles.time}>Time: {item.time.substring(11, 16)}</Text>
-          <Text style={styles.type}>Type: {item.type === "IN" ? "In" : "Out"}</Text>
-          <Text style={styles.desc}>
-            {attendedIn ? "Attended" : attendedOut ? "Missed" : "Deviated"} the {item.type.toUpperCase()} class
-          </Text>
-        </View>
-        <TouchableOpacity style={styles.button} activeOpacity={0.8}>
-          <Link
-            href={{
-              pathname: "/history/[id]",
-              params: {
-                id: item.id,
-              },
-            }}
-          >
-            <MaterialIcons name="arrow-forward" size={30} color="white" />
-          </Link>
-        </TouchableOpacity>
+        <Link
+          href={{
+            pathname: "/history/[id]",
+            params: {
+              id: item.id,
+            },
+          }}
+          asChild
+        >
+          <View style={{ flexDirection: "row", flex: 1 }}>
+            <View style={styles.iconContainer}>{icon}</View>
+            <View style={styles.textContainer}>
+              <Text style={styles.date}>Date: {item.time.substring(0, 10)}</Text>
+              <Text style={styles.time}>Time: {item.time.substring(11, 16)}</Text>
+              <Text style={styles.type}>
+                Type: {item.type === "IN" ? "In" : "Out"}
+              </Text>
+              <Text style={styles.desc}>
+                {attendedIn ? "Attended" : attendedOut ? "Missed" : "Deviated"}{" "}
+                the {item.type.toUpperCase()} class
+              </Text>
+            </View>
+          </View>
+        </Link>
       </Pressable>
     );
   };
   
-  
-
   return (
     <View style={styles.container}>
       {loading ? (
-        <Text>Loading...</Text>
+        <ActivityIndicator size={'large'} />
       ) : (
         <FlatList
           data={attendanceHistory}
@@ -149,8 +150,8 @@ const HistoryScreen = () => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={["#007bff"]} 
-              tintColor="#007bff" 
+              colors={["#007bff"]}
+              tintColor="#007bff"
             />
           }
         />
@@ -178,12 +179,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 20,
     marginVertical: 8,
+    marginHorizontal: 3,
     borderRadius: 8,
     elevation: 3,
     height: 120,
-    backgroundColor: '#d4edda',
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  
+
   iconContainer: {
     justifyContent: "center",
     alignItems: "center",
@@ -191,6 +201,8 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 20,
+    width: 40,
+    height: 40,
   },
   textContainer: {
     flex: 1,
