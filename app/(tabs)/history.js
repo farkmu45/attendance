@@ -1,47 +1,44 @@
-import React, { useState, useEffect } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import axios from 'axios'
+import { Link } from 'expo-router'
+import React, { useEffect, useState } from 'react'
 import {
+  ActivityIndicator,
   FlatList,
+  Image,
+  Pressable,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
-  Pressable,
-  RefreshControl,
-  Image,
-  ActivityIndicator,
-} from "react-native";
-import { FontAwesome5 } from "@expo/vector-icons";
-import axios from "axios";
-import { endpoint } from "../api/endpoint";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+} from 'react-native'
+import { endpoint } from '../api/endpoint'
 
 const HistoryScreen = () => {
-  const [attendanceHistory, setAttendanceHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isLoadingData, setisLoadingData] = useState(false);
-  const [authToken, setAuthToken] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
+  const [attendanceHistory, setAttendanceHistory] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [isLoadingData, setisLoadingData] = useState(false)
+  const [authToken, setAuthToken] = useState(null)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     const getTokenFromAsyncStorage = async () => {
       try {
-        const token = await AsyncStorage.getItem("@userToken");
+        const token = await AsyncStorage.getItem('@userToken')
         if (token !== null) {
-          setAuthToken(token);
+          setAuthToken(token)
         } else {
-          console.log("Token not found in AsyncStorage");
+          console.log('Token not found in AsyncStorage')
         }
       } catch (error) {
-        console.error("Error retrieving token from AsyncStorage:", error);
+        console.error('Error retrieving token from AsyncStorage:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    getTokenFromAsyncStorage();
-  }, []);
+    getTokenFromAsyncStorage()
+  }, [])
 
   const fetchData = async () => {
     try {
@@ -49,94 +46,86 @@ const HistoryScreen = () => {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      });
-      setAttendanceHistory(response.data.data);
+      })
+      setAttendanceHistory(response.data.data)
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Error fetching data:', error)
     } finally {
-      setRefreshing(false);
+      setRefreshing(false)
     }
-  };
+  }
 
   useEffect(() => {
     if (authToken) {
-      fetchData();
+      fetchData()
     }
-  }, [authToken]);
+  }, [authToken])
 
   const onRefresh = () => {
-    setRefreshing(true);
-    fetchData();
-  };
+    setRefreshing(true)
+    fetchData()
+  }
 
   const renderItem = ({ item }) => {
-    const attendedIn = item.type === "IN" && item.is_deviate === 0;
-    const attendedOut = item.type === "OUT" && item.is_deviate === 0;
-    const deviate = item.is_deviate;
-  
-    let icon;
+    const attendedIn = item.type === 'IN'
+    const attendedOut = item.type === 'OUT'
+    const deviate = item.is_deviate
+
+    let icon
     if (attendedIn) {
       icon = (
         <Image
-          source={require(".././../assets/attend.png")}
-          style={[styles.icon, { tintColor: "#28a745" }]}
+          source={require('.././../assets/attend.png')}
+          style={[styles.icon, { tintColor: '#28a745' }]}
         />
-      );
-    } else if (attendedOut) {
-      icon = (
-        <Image
-          source={require(".././../assets/exit.png")}
-          style={[styles.icon, { tintColor: "#dc3545" }]}
-        />
-      );
+      )
     } else {
       icon = (
         <Image
-          source={require(".././../assets/office.png")}
-          style={[styles.icon, { tintColor: "#FFA000" }]}
+          source={require('.././../assets/exit.png')}
+          style={[styles.icon, { tintColor: '#dc3545' }]}
         />
-      );
+      )
     }
-  
+
     return (
-      <Pressable
-        style={[
-          styles.card,
-          attendedIn
-            ? styles.attendedIn
-            : attendedOut
-            ? styles.attendedOut
-            : styles.deviate,
-        ]}
+      <Link
+        style={styles.card}
+        href={{
+          pathname: '/history/[id]',
+          params: {
+            id: item.id,
+          },
+        }}
+        asChild
       >
-        <Link
-          href={{
-            pathname: "/history/[id]",
-            params: {
-              id: item.id,
-            },
-          }}
-          asChild
-        >
-          <View style={{ flexDirection: "row", flex: 1 }}>
+        <Pressable>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
             <View style={styles.iconContainer}>{icon}</View>
             <View style={styles.textContainer}>
-              <Text style={styles.date}>Date: {item.time.substring(0, 10)}</Text>
-              <Text style={styles.time}>Time: {item.time.substring(11, 16)}</Text>
-              <Text style={styles.type}>
-                Type: {item.type === "IN" ? "In" : "Out"}
-              </Text>
-              <Text style={styles.desc}>
-                {attendedIn ? "Attended" : attendedOut ? "Missed" : "Deviated"}{" "}
-                the {item.type.toUpperCase()} class
+              <Text style={styles.date}>{item.time.substring(0, 10)}</Text>
+              <Text
+                style={{
+                  ...styles.type,
+                  borderColor: item.is_deviate
+                    ? 'rgba(54, 255, 31, 1)'
+                    : 'rgba(255, 231, 27, 1)',
+                  backgroundColor: item.is_deviate
+                    ? 'rgba(184, 255, 175, 1)'
+                    : 'rgba(255, 245, 155, 1))',
+                  color: 'black',
+                }}
+              >
+                {item.is_deviate ? 'ON TIME' : 'LATE'}
               </Text>
             </View>
+            <Text style={styles.time}>{item.time.substring(11, 16)}</Text>
           </View>
-        </Link>
-      </Pressable>
-    );
-  };
-  
+        </Pressable>
+      </Link>
+    )
+  }
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -150,87 +139,92 @@ const HistoryScreen = () => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={["#007bff"]}
-              tintColor="#007bff"
+              colors={['#007bff']}
+              tintColor='#007bff'
             />
           }
         />
       )}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 16,
-    color: "#007bff",
-    textAlign: "center",
+    color: '#007bff',
+    textAlign: 'center',
     paddingVertical: 20,
   },
 
   card: {
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 3,
     borderRadius: 8,
-    elevation: 3,
-    height: 120,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
+    height: 90,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderColor: 'rgba(227, 227, 227, 1)',
+    borderWidth: 1,
   },
 
   iconContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 20,
   },
   icon: {
-    marginRight: 20,
-    width: 40,
-    height: 40,
+    marginRight: 2,
+    width: 30,
+    height: 30,
   },
   textContainer: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   date: {
-    fontSize: 16,
-    marginBottom: 4,
+    fontSize: 15,
+    marginBottom: 7,
+    color: 'rgba(60, 60, 60, 1)',
   },
   time: {
-    fontSize: 16,
-    marginBottom: 4,
+    fontSize: 22,
+    fontWeight: '600',
+    color: 'rgba(60, 60, 60, 1)',
   },
   type: {
-    fontSize: 16,
-    marginBottom: 4,
-    fontWeight: "bold",
+    fontSize: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 1,
+    borderWidth: 1,
+    borderRadius: 50,
+    fontWeight: 500,
+    alignSelf: 'flex-start',
+    color: 'rgba(60, 60, 60, 1)',
   },
   desc: {
     fontSize: 16,
   },
   button: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#007bff",
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#007bff',
     borderRadius: 8,
     padding: 10,
   },
-});
+})
 
-export default HistoryScreen;
+export default HistoryScreen
