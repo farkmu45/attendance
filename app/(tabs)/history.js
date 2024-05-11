@@ -102,37 +102,30 @@ const HistoryScreen = () => {
       <Pressable
         style={[
           styles.card,
-          attendedIn
-            ? styles.attendedIn
-            : attendedOut
-            ? styles.attendedOut
-            : styles.deviate,
+          attendedIn ? styles.attendedIn : attendedOut ? styles.attendedOut : styles.deviate,
         ]}
       >
-        <Link
-          href={{
-            pathname: "/history/[id]",
-            params: {
-              id: item.id,
-            },
-          }}
-          asChild
-        >
-          <View style={{ flexDirection: "row", flex: 1 }}>
-            <View style={styles.iconContainer}>{icon}</View>
-            <View style={styles.textContainer}>
-              <Text style={styles.date}>Date: {item.time.substring(0, 10)}</Text>
-              <Text style={styles.time}>Time: {item.time.substring(11, 16)}</Text>
-              <Text style={styles.type}>
-                Type: {item.type === "IN" ? "In" : "Out"}
-              </Text>
-              <Text style={styles.desc}>
-                {attendedIn ? "Attended" : attendedOut ? "Missed" : "Deviated"}{" "}
-                the {item.type.toUpperCase()} class
-              </Text>
-            </View>
-          </View>
-        </Link>
+        <View style={styles.iconContainer}>{icon}</View>
+        <View style={styles.textContainer}>
+          <Text style={styles.date}>Date: {item.time.substring(0, 10)}</Text>
+          <Text style={styles.time}>Time: {item.time.substring(11, 16)}</Text>
+          <Text style={styles.type}>Type: {item.type === "IN" ? "In" : "Out"}</Text>
+          <Text style={styles.desc}>
+            {attendedIn ? "Attended" : attendedOut ? "Missed" : "Deviated"} the {item.type.toUpperCase()} class
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.button} activeOpacity={0.8}>
+          <Link
+            href={{
+              pathname: "/history/[id]",
+              params: {
+                id: item.id,
+              },
+            }}
+          >
+            <MaterialIcons name="arrow-forward" size={30} color="white" />
+          </Link>
+        </TouchableOpacity>
       </Pressable>
     );
   };

@@ -16,7 +16,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mikasah.attendance"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,6 +28,14 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2f8bdc52-763a-49be-b884-fcde3ed24d04"
+      }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
