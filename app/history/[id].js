@@ -4,7 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { endpoint } from "../api/endpoint";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { MaterialIcons } from '@expo/vector-icons'; 
+import { MaterialIcons,FontAwesome5 } from "@expo/vector-icons";
 
 const DetailScreen = () => {
   const { id } = useLocalSearchParams();
@@ -56,7 +56,14 @@ const DetailScreen = () => {
 
   const DetailItem = ({ label, value, icon }) => (
     <View style={styles.detailItem}>
-      {icon && <MaterialIcons name={icon} size={24} color="#3498db" style={styles.icon} />} 
+      {icon && (
+        <MaterialIcons
+          name={icon}
+          size={24}
+          color="#3498db"
+          style={styles.icon}
+        />
+      )}
       <Text style={styles.detailLabel}>{label}</Text>
       <Text style={styles.detailValue}>{value}</Text>
     </View>
@@ -66,20 +73,56 @@ const DetailScreen = () => {
     const date = new Date(dateTime);
     return `${date.toDateString()} ${date.toLocaleTimeString()}`;
   };
-
+  const formatDate = (dateTime) => {
+    const date = new Date(dateTime);
+    const day = date.getDate();
+    const monthIndex = date.getMonth();
+    const year = date.getFullYear();
+  
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June", "July",
+      "August", "September", "October", "November", "December"
+    ];
+  
+    return `${day} ${monthNames[monthIndex]} ${year}`;
+  };
+  
+  
   const renderDetailItem = ({ item }) => (
     <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <MaterialIcons name="info" size={24} color="#3498db" style={styles.headerIcon} />
-        <Text style={styles.headerText}>Attendance Detail</Text>
+      <Text style={styles.headerText}>Attendance Detail</Text>
+      <View style={styles.detailItem}>
+        <FontAwesome5 name="clock" size={25} color="#555" style={styles.icon} />
+        <Text style={styles.detailLabel}>Time :</Text>
+        <Text style={styles.detailValue}>{item.time.substring(11, 16)}</Text>
       </View>
-      <DetailItem label="ID" value={item.id} icon="credit-card" />
-      <DetailItem label="User ID" value={item.user_id} icon="person" />
-      <DetailItem label="Time" value={formatDateTime(item.time)} icon="access-time" />
-      <DetailItem label="Type" value={item.type} icon="event" />
-      <DetailItem label="Is Deviate" value={item.is_deviate ? "Yes" : "No"} icon="warning" />
+      <View style={styles.detailItem}>
+        <FontAwesome5 name="calendar" size={25} color="#555" style={styles.icon} />
+        <Text style={styles.detailLabel}>Date :</Text>
+        <Text style={styles.detailValue}>{formatDate(item.time)}</Text>
+      </View>
+      <View style={styles.detailItem}>
+        <FontAwesome5 name="hand-point-right" size={25} color="#555" style={styles.icon} />
+        <Text style={styles.detailLabel}>Type :</Text>
+        <Text style={styles.detailValue}>
+          {item.type === 'IN' ? 'Entrance' : 'Exit'}
+        </Text>
+      </View>
+      <Text
+        style={{
+          ...styles.type,
+          borderColor: item.is_deviate ? '#36FF1F' : '#FFE71B',
+          backgroundColor: item.is_deviate ? '#B8FFAF' : '#FFF59B',
+          color: '#000',
+        }}
+        icon="warning"
+      >
+        {item.is_deviate ? 'ON TIME' : 'LATE'}
+      </Text>
     </View>
   );
+  
+  
 
   return (
     <View style={styles.container}>
@@ -109,26 +152,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     elevation: 3,
   },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  headerIcon: {
-    marginRight: 8,
-  },
   headerText: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#3498db",
+    marginBottom: 16,
+    textAlign:'center'
   },
   detailItem: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
-  },
-  icon: {
-    marginRight: 8,
   },
   detailLabel: {
     fontWeight: "bold",
@@ -140,6 +174,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#555",
   },
+  type: {
+    padding: 8,
+    borderRadius: 5,
+    textAlign: "center",
+    marginTop: 8,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  icon:{
+    marginRight:10
+  }
 });
 
 export default DetailScreen;

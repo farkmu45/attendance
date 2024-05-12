@@ -6,4 +6,5 @@ export const endpoint =  {
     Attend: `${url}/api/attendances`,
     AttendDetail: (id) => `${url}/api/attendances/${id}`,
     AttendFace: `${url}/api/attendances?face_recognition=0`,
+    Profile: `${url}/api/me`,
   }; 
