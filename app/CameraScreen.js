@@ -8,38 +8,33 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Modal,
   StyleSheet,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import { endpoint } from "./api/endpoint";
 import Toast from "react-native-root-toast";
+import images from "../assets/images";
+import LottieView from "lottie-react-native";
 
 const CameraScreen = () => {
   const cameraRef = useRef(null);
   const [authToken, setAuthToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
   const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [displayGif, setDisplayGif] = useState(false);
+  const [gifToShow, setGifToShow] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const animation = useRef(null);
+  useEffect(() => {
+    if (!permission) {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
 
-  if (!permission) {
-    requestPermission();
-  }
-
-  // useEffect(() => {
-  //   const getRatio = async () => {
-  //     try {
-  //       const ratios = await cameraRef.current.getSupportedRatiosAsync();
-  //       console.log("Supported ratios:", ratios);
-  //     } catch (error) {
-  //       console.error("Error getting supported ratios:", error);
-  //     }
-  //   };
-
-  //   getRatio();
-  // }, []);
-
-  useEffect(async () => {
+  useEffect(() => {
     const getTokenFromAsyncStorage = async () => {
       try {
         const token = await AsyncStorage.getItem("@userToken");
@@ -57,50 +52,6 @@ const CameraScreen = () => {
     getTokenFromAsyncStorage();
   }, []);
 
-  const verifyPhoto = async (photoUri) => {
-    try {
-      const formData = new FormData();
-      formData.append("picture", {
-        uri: photoUri,
-        type: "image/jpeg",
-        name: "attendPhoto.jpg",
-      });
-  
-      const response = await axios.post(endpoint.Attend, formData, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-  
-      if (response.status === 201) {
-        console.log(response.data);
-        Toast.show("Attendance Success.", {
-          duration: Toast.durations.SHORT,
-        });
-  
-        return true;
-      } else {
-        console.log("Unexpected response status:", response.status);
-        Toast.show("Verification Failed.", {
-          duration: Toast.durations.LONG,
-        });
-  
-        return false;
-      }
-    } catch (error) {
-      console.log("Error verifying photo:", error.response.data);
-      if (error.response.data.code === "NOT_RECOGNIZED") {
-        const errorMessage = error.response.data.error;
-        return errorMessage;
-      } else if (error.response.data.code === "ATTENDANCE_EXISTS") {
-        return "Attendance already exist.";
-      } else { 
-        return "Error Please Try Again Later, Make Sure If You Not Attended Before"; 
-      }  
-    } 
-  };
-  
   const takePhoto = async () => {
     try {
       if (!cameraRef.current) return;
@@ -109,7 +60,7 @@ const CameraScreen = () => {
       const result = await verifyPhoto(photo.uri);
       setIsLoading(false);
       if (result === true) {
-        router.push("/(tabs)");
+        setModalVisible(true);
       } else {
         const errorMessage = result || "Unknown error";
         const retry = await showRetryAlert(errorMessage);
@@ -121,19 +72,95 @@ const CameraScreen = () => {
       }
     } catch (error) {
       console.log("Error taking photo:", error);
-    } 
+    }
+  };
+
+  const showGifAndRedirect = async (response) => {
+    setIsLoading(true);
+    setDisplayGif(true);
+  
+    const animationSource =
+      response.type === "IN"
+        ? require('../assets/LottieJson/thumb.json') 
+        : require('../assets/LottieJson/thumb.json');
+  
+    setGifToShow(animationSource);
+  
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  
+    setIsLoading(false);
+  
+    if (response.type === "IN") {
+      router.push("/(tabs)");
+    } else {
+      router.push("/(tabs)");
+    }
   };
   
+
+  const verifyPhoto = async (photoUri) => {
+    try {
+      const formData = new FormData();
+      formData.append("picture", {
+        uri: photoUri,
+        type: "image/jpeg",
+        name: "attendPhoto.jpg",
+      });
+
+      const response = await axios.post(endpoint.Attend, formData, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status === 201) {
+        console.log(response.data);
+        Toast.show("Attendance Success.", {
+          duration: Toast.durations.SHORT,
+        });
+
+        showGifAndRedirect(response.data);
+
+        return true;
+      } else {
+        console.log("Unexpected response status:", response.status);
+        Toast.show("Verification Failed.", {
+          duration: Toast.durations.LONG,
+        });
+
+        return false;
+      }
+    } catch (error) {
+      console.log("Error verifying photo:", error.response.data);
+      if (error.response.data.code === "NOT_RECOGNIZED") {
+        const errorMessage = error.response.data.error;
+        return errorMessage;
+      } else if (error.response.data.code === "ATTENDANCE_EXISTS") {
+        return "Attendance already exist.";
+      } else {
+        return "Error Please Try Again Later, Make Sure If You Not Attended Before";
+      }
+    }
+  };
+
   const showRetryAlert = async (errorMessage) => {
     return new Promise((resolve, reject) => {
-      if (errorMessage === 'Attendance already exist.') {
-        Alert.alert('Verification Failed', `Error verifying photo, ${errorMessage}`,[{ text: "OK",
-        onPress: async () => {
-          await router.push('/(tabs)'); 
-          resolve();
-        },}])
-      }
-      else {
+      if (errorMessage === "Attendance already exist.") {
+        Alert.alert(
+          "Verification Failed",
+          `Error verifying photo, ${errorMessage}`,
+          [
+            {
+              text: "OK",
+              onPress: async () => {
+                await router.push("/(tabs)");
+                resolve();
+              },
+            },
+          ]
+        );
+      } else {
         Alert.alert(
           "Verification Failed",
           `Error verifying photo ${errorMessage}. Do you want to use fingerprint?`,
@@ -154,10 +181,8 @@ const CameraScreen = () => {
           { cancelable: false }
         );
       }
-      
     });
   };
-  
 
   const promptFingerprintAuthentication = async () => {
     try {
@@ -191,7 +216,7 @@ const CameraScreen = () => {
               duration: Toast.durations.SHORT,
             });
             // console.log("yey berhasil");
-            router.push("/(tabs)");
+            showGifAndRedirect(response.data);
             retry = false;
           }
         }
@@ -208,6 +233,11 @@ const CameraScreen = () => {
       );
     }
   }; 
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+    router.push("/(tabs)");
+  };
 
   return (
     <View style={styles.container}>
@@ -228,6 +258,30 @@ const CameraScreen = () => {
       <Link style={styles.backButton} href="/(tabs)">
         <Ionicons name="arrow-back" size={24} color="white" />
       </Link>
+      <View style={styles.modalContainer}>
+        {displayGif && (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={true}
+            onRequestClose={() => {
+              setDisplayGif(false);
+            }}
+          >
+            <View style={styles.modalContent}>
+              {gifToShow && (
+                <LottieView
+                  autoPlay
+                  ref={animation}
+                  loop={false}
+                  style={styles.gif}
+                  source={gifToShow}
+                />
+              )}
+            </View>
+          </Modal>
+        )}
+      </View>
     </View>
   );
 };
@@ -262,6 +316,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+  },
+  gif: {
+    width: 200,
+    height: 200,
+    backgroundColor: "#eee",
   },
 });
 

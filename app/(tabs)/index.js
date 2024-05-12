@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing,Image } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { router } from "expo-router";
+import images from "../../assets/images";
 
 const Clock = ({ currentTime }) => {
   return (
     <View style={styles.clockContainer}>
       <View style={styles.clock}>
         <Text style={styles.clockText}>{currentTime.toLocaleTimeString()}</Text>
+        
       </View>
     </View>
   );
@@ -76,6 +78,9 @@ const AttendanceScreen = () => {
           <Text style={styles.greeting}>{greeting}</Text>
         </View>
         <Text style={styles.title}>Welcome to Attendance</Text>
+        {/* <View>
+        <Image source={images.gifAttend} style={{width:200, height:200}} />
+      </View>  */}
         <FontAwesome5 name="user-clock" size={100} color="#3498db" style={styles.icon} />
         <TouchableOpacity
           style={[styles.attendButton, { transform: [{ scale: buttonScale }] }]}
