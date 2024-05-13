@@ -81,8 +81,8 @@ const CameraScreen = () => {
   
     const animationSource =
       response.type === "IN"
-        ? require('../assets/LottieJson/thumb.json') 
-        : require('../assets/LottieJson/thumb.json');
+        ? require('../assets/LottieJson/door_open_new.json') 
+        : require('../assets/LottieJson/goodbye.json');
   
     setGifToShow(animationSource);
   
@@ -302,6 +302,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#3498db",
     padding: 20,
     borderRadius: 50,
+    zIndex:10
   },
   backButton: {
     position: "absolute",
@@ -310,6 +311,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#3498db",
     padding: 10,
     borderRadius: 5,
+    zIndex:10
   },
   loading: {
     ...StyleSheet.absoluteFill,
@@ -321,6 +323,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor:'transparent'
   },
   modalContent: {
     backgroundColor: "rgba(0, 0, 0, 0.5)",
