@@ -13,11 +13,11 @@ import {
   View,
 } from 'react-native'
 import { endpoint } from '../api/endpoint'
+import { parseISO, format } from 'date-fns'
 
 const HistoryScreen = () => {
   const [attendanceHistory, setAttendanceHistory] = useState([])
   const [loading, setLoading] = useState(true)
-  const [isLoadingData, setisLoadingData] = useState(false)
   const [authToken, setAuthToken] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
 
@@ -88,6 +88,10 @@ const HistoryScreen = () => {
       )
     }
 
+    const date = parseISO(item.time)
+    const formattedDate = format(date, 'yyyy-MM-dd')
+    const formattedTime = format(date, 'HH:mm')
+
     return (
       <Link
         style={styles.card}
@@ -103,7 +107,7 @@ const HistoryScreen = () => {
           <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
             <View style={styles.iconContainer}>{icon}</View>
             <View style={styles.textContainer}>
-              <Text style={styles.date}>{item.time.substring(0, 10)}</Text>
+              <Text style={styles.date}>{formattedDate}</Text>
               <Text
                 style={{
                   ...styles.type,
@@ -112,14 +116,14 @@ const HistoryScreen = () => {
                     : 'rgba(255, 231, 27, 1)',
                   backgroundColor: item.is_deviate
                     ? 'rgba(184, 255, 175, 1)'
-                    : 'rgba(255, 245, 155, 1))',
+                    : 'rgba(255, 245, 155, 1)',
                   color: 'black',
                 }}
               >
                 {item.is_deviate ? 'ON TIME' : 'LATE'}
               </Text>
             </View>
-            <Text style={styles.time}>{item.time.substring(11, 16)}</Text>
+            <Text style={styles.time}>{formattedTime}</Text>
           </View>
         </Pressable>
       </Link>
@@ -163,7 +167,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 20,
   },
-
   card: {
     flexDirection: 'row',
     padding: 20,
@@ -180,7 +183,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(227, 227, 227, 1)',
     borderWidth: 1,
   },
-
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',

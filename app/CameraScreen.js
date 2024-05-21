@@ -247,7 +247,7 @@ const CameraScreen = () => {
         style={styles.camera}
         type={CameraType.front}
       />
-      <TouchableOpacity style={styles.button} onPress={takePhoto}>
+      <TouchableOpacity disabled={isLoading === true ? true : false} style={styles.button} onPress={takePhoto}>
         <Ionicons name="camera" size={36} color="white" />
       </TouchableOpacity>
       {isLoading && (
@@ -323,18 +323,20 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor:'transparent'
   },
   modalContent: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    flex: 1,
+    width: '100%',
+    height: '100%',
     justifyContent: "center",
     alignItems: "center",
-    flex: 1,
-  },
+    backgroundColor: 'white', 
+  },  
   gif: {
     width: 200,
     height: 200,
-    backgroundColor: "#eee",
+    backgroundColor: "transparent",
+    resizeMode: 'contain'
   },
 });
 
