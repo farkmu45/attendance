@@ -38,6 +38,7 @@ const HistoryScreen = () => {
     }
 
     getTokenFromAsyncStorage()
+  
   }, [])
 
   const fetchData = async () => {
@@ -68,28 +69,27 @@ const HistoryScreen = () => {
 
   const renderItem = ({ item }) => {
     const attendedIn = item.type === 'IN'
-    const attendedOut = item.type === 'OUT'
-    const deviate = item.is_deviate
+
 
     let icon
     if (attendedIn) {
       icon = (
         <Image
           source={require('.././../assets/attend.png')}
-          style={[styles.icon, { tintColor: '#28a745' }]}
+          style={[styles.icon, { tintColor: 'green' }]}
         />
       )
     } else {
       icon = (
         <Image
-          source={require('.././../assets/exit.png')}
-          style={[styles.icon, { tintColor: '#dc3545' }]}
-        />
+          source={require('.././../assets/attend.png')}
+          style={[styles.icon, { tintColor: 'green' }]}
+        /> 
       )
     }
 
     const date = parseISO(item.time)
-    const formattedDate = format(date, 'yyyy-MM-dd')
+    const formattedDate = format(date, 'yyyy-MM-dd') 
     const formattedTime = format(date, 'HH:mm')
 
     return (
@@ -108,7 +108,7 @@ const HistoryScreen = () => {
             <View style={styles.iconContainer}>{icon}</View>
             <View style={styles.textContainer}>
               <Text style={styles.date}>{formattedDate}</Text>
-              <Text
+              {/* <Text
                 style={{
                   ...styles.type,
                   borderColor: item.is_deviate
@@ -116,12 +116,12 @@ const HistoryScreen = () => {
                     : 'rgba(255, 231, 27, 1)',
                   backgroundColor: item.is_deviate
                     ? 'rgba(184, 255, 175, 1)'
-                    : 'rgba(255, 245, 155, 1)',
+                    : 'rgba(255, 245, 155, 1)', 
                   color: 'black',
                 }}
               >
                 {item.is_deviate ? 'ON TIME' : 'LATE'}
-              </Text>
+              </Text> */}
             </View>
             <Text style={styles.time}>{formattedTime}</Text>
           </View>
@@ -199,8 +199,8 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 15,
-    marginBottom: 7,
     color: 'rgba(60, 60, 60, 1)',
+    fontWeight:'bold'
   },
   time: {
     fontSize: 22,

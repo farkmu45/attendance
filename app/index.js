@@ -20,7 +20,18 @@ export default function Page() {
     };
 
     getTokenFromStorage();
-  }, []);
+    // const removeValue = async () => {
+    //   try {
+    //     await AsyncStorage.removeItem('@userToken');
+    //     console.log("Token removed from AsyncStorage");
+    //   } catch(e) {
+    //     console.log("Error removing token:", e);
+    //   }
+    // };
+ 
+    // removeValue()
+     
+  }, []);  
 
   if (loading) {
     return <LoadingIndicator />;

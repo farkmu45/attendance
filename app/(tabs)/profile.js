@@ -9,7 +9,7 @@ import { router } from "expo-router";
 const ProfilePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState(null);
-  const navigation = useNavigation();
+  const navigation = useNavigation(); 
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -69,7 +69,7 @@ const ProfilePage = () => {
               if (response.status === 200) {
                 console.log("Logout successful");
                 await AsyncStorage.removeItem('@userToken');
-                router.push('login');
+                router.push('login'); 
               } else {
                 console.error("Logout failed:", response);
               }
@@ -78,7 +78,7 @@ const ProfilePage = () => {
             } finally {
               setIsLoading(false); 
             }
-          },
+          }, 
         },
       ],
       { cancelable: false }

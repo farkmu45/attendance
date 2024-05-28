@@ -58,6 +58,7 @@ const CameraScreen = () => {
       const photo = await cameraRef.current.takePictureAsync();
       setIsLoading(true);
       const result = await verifyPhoto(photo.uri);
+      console.log('result', result);
       setIsLoading(false);
       if (result === true) {
         setModalVisible(true);
@@ -78,25 +79,24 @@ const CameraScreen = () => {
   const showGifAndRedirect = async (response) => {
     setIsLoading(true);
     setDisplayGif(true);
-  
+
     const animationSource =
       response.type === "IN"
-        ? require('../assets/LottieJson/door_open_new.json') 
-        : require('../assets/LottieJson/goodbye.json');
-  
+        ? require("../assets/LottieJson/door_open_new.json")
+        : require("../assets/LottieJson/goodbye.json");
+
     setGifToShow(animationSource);
-  
+
     await new Promise((resolve) => setTimeout(resolve, 2000));
-  
+
     setIsLoading(false);
-  
+
     if (response.type === "IN") {
       router.push("/(tabs)");
     } else {
       router.push("/(tabs)");
     }
   };
-  
 
   const verifyPhoto = async (photoUri) => {
     try {
@@ -132,11 +132,11 @@ const CameraScreen = () => {
         return false;
       }
     } catch (error) {
-      console.log("Error verifying photo:", error.response.data);
+      // console.log("Error verifying photo:", error.response.data.code);
       if (error.response.data.code === "NOT_RECOGNIZED") {
         const errorMessage = error.response.data.error;
         return errorMessage;
-      } else if (error.response.data.code === "ATTENDANCE_EXISTS") {
+      } else if (error.response.data.code === "ATTENDANCE_EXIST") {
         return "Attendance already exist.";
       } else {
         return "Error Please Try Again Later, Make Sure If You Not Attended Before";
@@ -227,12 +227,31 @@ const CameraScreen = () => {
       }
     } catch (error) {
       console.log("Error with fingerprint authentication:", error.request);
-      Alert.alert(
-        "Information",
-        `Fingerprint authentication failed ${error.response.data.error}.`
-      );
+      if (error.response.data.code === "ATTENDANCE_EXIST") {
+        Alert.alert(
+          "Information",
+          "Fingerprint authentication failed, you already attended.",
+          [
+            {
+              text: "OK",
+              onPress: () => router.push("(tabs)"),
+            },
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Information",
+          `Fingerprint authentication failed, ${error.response.data.error}`,
+          [
+            {
+              text: "OK",
+              onPress: () => router.push("(tabs)"),
+            },
+          ]
+        );
+      }
     }
-  }; 
+  };
 
   const handleModalClose = () => {
     setModalVisible(false);
@@ -247,7 +266,11 @@ const CameraScreen = () => {
         style={styles.camera}
         type={CameraType.front}
       />
-      <TouchableOpacity disabled={isLoading === true ? true : false} style={styles.button} onPress={takePhoto}>
+      <TouchableOpacity
+        disabled={isLoading === true ? true : false}
+        style={styles.button}
+        onPress={takePhoto}
+      >
         <Ionicons name="camera" size={36} color="white" />
       </TouchableOpacity>
       {isLoading && (
@@ -302,7 +325,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#3498db",
     padding: 20,
     borderRadius: 50,
-    zIndex:10
+    zIndex: 10,
   },
   backButton: {
     position: "absolute",
@@ -311,7 +334,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#3498db",
     padding: 10,
     borderRadius: 5,
-    zIndex:10
+    zIndex: 10,
   },
   loading: {
     ...StyleSheet.absoluteFill,
@@ -326,17 +349,17 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: 'white', 
-  },  
+    backgroundColor: "white",
+  },
   gif: {
     width: 200,
     height: 200,
     backgroundColor: "transparent",
-    resizeMode: 'contain'
+    resizeMode: "contain",
   },
 });
 

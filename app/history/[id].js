@@ -4,7 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { endpoint } from "../api/endpoint";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { MaterialIcons,FontAwesome5 } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome5, Fontisto } from "@expo/vector-icons";
 
 const DetailScreen = () => {
   const { id } = useLocalSearchParams();
@@ -78,51 +78,49 @@ const DetailScreen = () => {
     const day = date.getDate();
     const monthIndex = date.getMonth();
     const year = date.getFullYear();
-  
+
     const monthNames = [
-      "January", "February", "March", "April", "May", "June", "July",
-      "August", "September", "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
-  
+
     return `${day} ${monthNames[monthIndex]} ${year}`;
   };
-  
-  
+
   const renderDetailItem = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.headerText}>Attendance Detail</Text>
       <View style={styles.detailItem}>
-        <FontAwesome5 name="clock" size={25} color="#555" style={styles.icon} />
-        <Text style={styles.detailLabel}>Time :</Text>
-        <Text style={styles.detailValue}>{item.time.substring(11, 16)}</Text>
+        <FontAwesome5 name="clock" size={23} color="#555" style={styles.icon} />
+        <View style={styles.detailTextWrapper}>
+          <Text style={styles.detailLabel}>Time :</Text>
+          <Text style={styles.detailValue}>{item.time.substring(11, 16)}</Text>
+        </View>
       </View>
       <View style={styles.detailItem}>
-        <FontAwesome5 name="calendar" size={25} color="#555" style={styles.icon} />
-        <Text style={styles.detailLabel}>Date :</Text>
-        <Text style={styles.detailValue}>{formatDate(item.time)}</Text>
+        <Fontisto
+          name="date"
+          size={25}
+          color="#555"
+          style={styles.icon}
+        />
+        <View style={styles.detailTextWrapper}>
+          <Text style={styles.detailLabel}>Date :</Text>
+          <Text style={styles.detailValue}>{formatDate(item.time)}</Text>
+        </View>
       </View>
-      <View style={styles.detailItem}>
-        <FontAwesome5 name="hand-point-right" size={25} color="#555" style={styles.icon} />
-        <Text style={styles.detailLabel}>Type :</Text>
-        <Text style={styles.detailValue}>
-          {item.type === 'IN' ? 'Entrance' : 'Exit'}
-        </Text>
-      </View>
-      <Text
-        style={{
-          ...styles.type,
-          borderColor: item.is_deviate ? '#36FF1F' : '#FFE71B',
-          backgroundColor: item.is_deviate ? '#B8FFAF' : '#FFF59B',
-          color: '#000',
-        }}
-        icon="warning"
-      >
-        {item.is_deviate ? 'ON TIME' : 'LATE'}
-      </Text>
     </View>
   );
-  
-  
 
   return (
     <View style={styles.container}>
@@ -157,34 +155,34 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#3498db",
     marginBottom: 16,
-    textAlign:'center'
+    textAlign: "center",
   },
   detailItem: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
   },
+  detailTextWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  icon: {
+    marginRight: 10,
+    alignSelf: "flex-start",
+  },
   detailLabel: {
     fontWeight: "bold",
     fontSize: 16,
-    marginRight: 8,
+    marginRight: 4,
     color: "#333",
+    flexShrink: 0,
   },
   detailValue: {
     fontSize: 16,
     color: "#555",
+    flexShrink: 1,
   },
-  type: {
-    padding: 8,
-    borderRadius: 5,
-    textAlign: "center",
-    marginTop: 8,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  icon:{
-    marginRight:10
-  }
 });
 
 export default DetailScreen;

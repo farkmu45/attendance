@@ -47,7 +47,7 @@ const LoginPage = () => {
         setLoading(false);
         setInvalidCredentials(true);
       });
-  };
+  }; 
 
   return (
     <SafeAreaView style={styles.container}>
